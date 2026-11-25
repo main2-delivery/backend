@@ -1,12 +1,12 @@
 services:
   mysql:
     image: mysql:8.4
-    container_name: dishpatch-mysql
+    container_name: ddip-mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${DB_NAME:-dishpatch}
-      MYSQL_USER: ${DB_USER:-dishpatch}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-dishpatch}
+      MYSQL_DATABASE: ${DB_NAME:-ddip}
+      MYSQL_USER: ${DB_USER:-ddip}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-ddip}
       TZ: Asia/Seoul
     command:
       - --character-set-server=utf8mb4
@@ -19,14 +19,14 @@ services:
 
   redis:
     image: redis:7
-    container_name: dishpatch-redis
+    container_name: ddip-redis
     ports:
       - "${REDIS_PORT:-6379}:6379"
 
   # 서버 4개의 /actuator/prometheus 를 5초마다 읽어 수치를 저장
   prometheus:
     image: prom/prometheus:latest
-    container_name: dishpatch-prometheus
+    container_name: ddip-prometheus
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --web.enable-remote-write-receiver   # k6 결과를 받기 위한 옵션
@@ -41,7 +41,7 @@ services:
   # Prometheus 수치를 그래프로 보는 화면 (http://localhost:3000, admin / admin)
   grafana:
     image: grafana/grafana:latest
-    container_name: dishpatch-grafana
+    container_name: ddip-grafana
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin

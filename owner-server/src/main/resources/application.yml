@@ -5,9 +5,9 @@ spring:
   application:
     name: owner-server
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:dishpatch}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: ${DB_USER:dishpatch}
-    password: ${DB_PASSWORD:dishpatch}
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:ddip}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USER:ddip}
+    password: ${DB_PASSWORD:ddip}
   jpa:
     hibernate:
       ddl-auto: validate
