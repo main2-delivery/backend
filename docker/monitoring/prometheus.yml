@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 5s
+
+# 서버 구분은 각 서버가 붙여 보내는 application 라벨로 한다 (application.yml 의 management.metrics.tags)
+scrape_configs:
+  - job_name: spring
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - host.docker.internal:8081   # customer-server
+          - host.docker.internal:8082   # owner-server
+          - host.docker.internal:8083   # delivery-server
+          - host.docker.internal:8084   # store-server

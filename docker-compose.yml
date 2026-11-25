@@ -23,5 +23,50 @@ services:
     ports:
       - "${REDIS_PORT:-6379}:6379"
 
+  # 서버 4개의 /actuator/prometheus 를 5초마다 읽어 수치를 저장
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: dishpatch-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver   # k6 결과를 받기 위한 옵션
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Prometheus 수치를 그래프로 보는 화면 (http://localhost:3000, admin / admin)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: dishpatch-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./docker/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  # 부하 테스트. 평소엔 뜨지 않고 `docker compose run --rm k6 run /scripts/파일.js` 로만 실행
+  k6:
+    image: grafana/k6:latest
+    profiles: ["k6"]
+    environment:
+      K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
+      K6_PROMETHEUS_RW_TREND_STATS: p(95),p(99),avg,max
+      K6_OUT: experimental-prometheus-rw
+    volumes:
+      - ./k6:/scripts:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 volumes:
   mysql-data:
+  prometheus-data:
+  grafana-data:

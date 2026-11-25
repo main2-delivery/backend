@@ -13,12 +13,26 @@
 | store-server | 매장 관리 시스템 (Sprint 2) | 8084 |
 
 ## 실행
-1. `docker compose up -d` (MySQL, Redis)
+1. `docker compose up -d` (MySQL, Redis, Prometheus, Grafana)
 2. `./gradlew :customer-server:bootRun`
 3. `./gradlew :owner-server:bootRun`
 
 접속 정보 기본값은 `docker-compose.yml`과 맞춰져 있어 `.env` 없이도 로컬에서 실행된다.
 값을 바꾸려면 `.env.example`을 `.env`로 복사해 수정한다. `.env`는 올리지 않는다.
+
+## 측정 (Before/After)
+| 도구 | 주소 | 용도 |
+|---|---|---|
+| Prometheus | http://localhost:9090 | 서버 4개의 수치를 5초마다 수집. `Status > Targets`에서 서버가 `UP`인지 확인 |
+| Grafana | http://localhost:3000 (admin / admin) | 수치를 그래프로 확인. Prometheus는 이미 연결되어 있다 |
+| k6 | 명령으로 실행 | 부하를 걸어 응답 시간·실패율 측정 |
+
+k6 실행: `docker compose run --rm k6 run /scripts/smoke.js`
+스크립트는 `k6/` 폴더에 두고, `smoke.js`를 복사해 자기 API에 맞게 고쳐 쓴다.
+k6 결과는 터미널에 요약이 나오고 Prometheus에도 쌓여 Grafana에서 볼 수 있다.
+
+측정 순서: 수정 전 코드로 k6 실행 → 결과·그래프 캡처(Before) → 코드 수정 → 같은 스크립트로 다시 실행 → 캡처(After).
+서버는 도커 밖(로컬)에서 실행하고, 도커 안의 도구들이 `host.docker.internal`로 접속한다.
 
 ## 폴더 규칙
 계층 먼저, 그 안에서 기능 폴더로 나눈다.

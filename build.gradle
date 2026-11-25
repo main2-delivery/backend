@@ -55,5 +55,6 @@ configure(subprojects.findAll { it.name.endsWith('-server') }) {
     dependencies {
         implementation project(':common')
         runtimeOnly 'com.mysql:mysql-connector-j'
+        runtimeOnly 'io.micrometer:micrometer-registry-prometheus'   // Prometheus 수치 내보내기
     }
 }
