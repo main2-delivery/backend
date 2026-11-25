@@ -1,0 +1,31 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: owner-server
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:dishpatch}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USER:dishpatch}
+    password: ${DB_PASSWORD:dishpatch}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+internal:
+  api-key: ${INTERNAL_API_KEY:local-internal-key}
+  customer-base-url: ${CUSTOMER_BASE_URL:http://localhost:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

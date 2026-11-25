@@ -1,0 +1,12 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api 'org.springframework.boot:spring-boot-starter-webmvc'
+    api 'org.springframework.boot:spring-boot-starter-validation'
+    api 'org.springframework.boot:spring-boot-starter-restclient'   // 서버 간 REST 호출
+
+    // Security는 회원가입·로그인 작업을 시작할 때 추가
+    // api 'org.springframework.boot:spring-boot-starter-security'
+}

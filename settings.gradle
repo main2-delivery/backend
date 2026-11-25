@@ -1,0 +1,8 @@
+rootProject.name = 'backend'
+
+include 'common'
+include 'core-domain'
+include 'customer-server'
+include 'owner-server'
+include 'delivery-server'
+include 'store-server'
