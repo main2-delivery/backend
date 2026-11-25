@@ -4,6 +4,8 @@ plugins {
 
 dependencies {
     api 'org.springframework.boot:spring-boot-starter-data-jpa'
+    api 'org.springframework.boot:spring-boot-starter-flyway'     // 추가
+    runtimeOnly 'org.flywaydb:flyway-mysql'                       // 추가
 
     // QueryDSL (OpenFeign 포크): Q클래스는 엔티티가 있는 이 모듈에서 생성
     api 'io.github.openfeign.querydsl:querydsl-jpa:7.7'
