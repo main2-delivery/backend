@@ -41,3 +41,6 @@ out/
 application-local.yml
 *.pem
 *.key
+
+### 데이터 적재 묶음 (zip으로 따로 공유) ###
+db_import/
