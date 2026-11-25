@@ -8,6 +8,11 @@ spring:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/${DB_NAME:ddip}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DB_USER:ddip}
     password: ${DB_PASSWORD:ddip}
+  flyway:                          # ← 추가
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true      # 테이블은 있는데 Flyway 기록이 없으면 기준점(baseline)을 찍음
+    baseline-version: 0            # 그 기준점을 V0로 → V0는 실행하지 않고 "적용됨"으로 기록
   jpa:
     hibernate:
       ddl-auto: validate
