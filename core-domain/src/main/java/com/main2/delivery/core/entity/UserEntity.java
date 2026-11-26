@@ -2,8 +2,10 @@ package com.main2.delivery.core.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 
 /** 개인 회원 (고객 앱) */
@@ -22,15 +24,33 @@ public class UserEntity extends BaseTimeEntity {
     @Column(nullable = false, length = 20)
     private String phone;          // 로그인 ID. 숫자만
 
+    @Setter
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
+    @Setter
     @Column(nullable = false, length = 50)
     private String name;
 
+    @Setter
     @Column(length = 50)
     private String nickname;       // 리뷰 표시명
 
+    @Setter
     @Column(nullable = false, length = 20)
     private String status;         // ACTIVE / WITHDRAWN (기본값 ACTIVE 는 DB 가 넣음)
+
+    // 생성은 빌더로만 (UserEntity.builder()...build()). status 는 넣지 않음 → DB 기본값 ACTIVE
+    @Builder
+    private UserEntity(
+            String phone,
+            String passwordHash,
+            String name,
+            String nickname
+    ) {
+        this.phone = phone;
+        this.passwordHash = passwordHash;
+        this.name = name;
+        this.nickname = nickname;
+    }
 }
