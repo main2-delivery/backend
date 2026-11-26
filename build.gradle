@@ -46,6 +46,12 @@ subprojects {
     }
 
     tasks.named('test') { useJUnitPlatform() }
+
+    // 메서드 파라미터 이름을 컴파일 결과에 남김 (@RequestParam, @PathVariable 이름 연결용)
+    // -server 모듈은 Boot 플러그인이 자동으로 켜 주지만, common·core-domain은 직접 켜야 함
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs.add('-parameters')
+    }
 }
 
 // 이름이 -server로 끝나는 모듈 = 실행되는 서버
