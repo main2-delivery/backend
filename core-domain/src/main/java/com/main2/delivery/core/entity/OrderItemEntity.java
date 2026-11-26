@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "order_item")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OrderItemEntity {
+public class OrderItemEntity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,13 +22,13 @@ public class OrderItemEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id")
-    private MenuEntity menu;   // 메뉴가 삭제되면 null
+    private MenuEntity menu;        // 메뉴가 지워지면 null
 
     @Column(name = "menu_name", nullable = false, length = 100)
-    private String menuName;   // 주문 시점 값
+    private String menuName;        // 주문 시점 값
 
     @Column(name = "unit_price", nullable = false)
-    private int unitPrice;     // 주문 시점 값
+    private int unitPrice;          // 주문 시점 값
 
     @Column(nullable = false)
     private int quantity;
