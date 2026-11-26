@@ -2,6 +2,7 @@ package com.main2.delivery.core.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,4 +21,12 @@ public class PaymentEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false, unique = true)
     private OrderEntity order;
+
+    // 생성은 빌더로만 (PaymentEntity.builder()...build())
+    @Builder
+    private PaymentEntity(
+            OrderEntity order
+    ) {
+        this.order = order;
+    }
 }

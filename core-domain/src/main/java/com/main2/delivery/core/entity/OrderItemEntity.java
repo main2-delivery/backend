@@ -2,6 +2,7 @@ package com.main2.delivery.core.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,4 +33,20 @@ public class OrderItemEntity extends BaseTimeEntity {
 
     @Column(nullable = false)
     private int quantity;
+
+    // 생성은 빌더로만 (OrderItemEntity.builder()...build()). 주문 시점 값을 복사해 두는 기록이라 Setter 없음
+    @Builder
+    private OrderItemEntity(
+            OrderEntity order,
+            MenuEntity menu,
+            String menuName,
+            int unitPrice,
+            int quantity
+    ) {
+        this.order = order;
+        this.menu = menu;
+        this.menuName = menuName;
+        this.unitPrice = unitPrice;
+        this.quantity = quantity;
+    }
 }

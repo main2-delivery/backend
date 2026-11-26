@@ -2,8 +2,10 @@ package com.main2.delivery.core.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -29,6 +31,7 @@ public class OrderEntity extends BaseTimeEntity {   // created_at = 주문 시�
     private UserEntity user;
 
     // 상태 전이가 있어서 enum 사용. DB 는 VARCHAR 라 VARCHAR 로 매핑
+    @Setter
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = false, length = 20)
@@ -49,18 +52,42 @@ public class OrderEntity extends BaseTimeEntity {   // created_at = 주문 시�
     @Column(name = "request_note", length = 255)
     private String requestNote;
 
+    @Setter
     @Column(name = "cancel_reason", length = 255)
     private String cancelReason;    // 거절·취소 사유
 
+    @Setter
     @Column(name = "accepted_at")
     private LocalDateTime acceptedAt;
 
+    @Setter
     @Column(name = "cooked_at")
     private LocalDateTime cookedAt;
 
+    @Setter
     @Column(name = "completed_at")
     private LocalDateTime completedAt;   // 배달 완료
 
+    @Setter
     @Column(name = "canceled_at")
     private LocalDateTime canceledAt;
+
+    // 생성은 빌더로만 (OrderEntity.builder()...build()). status 는 PENDING 으로 시작. 금액(menuAmount·deliveryFee·totalPrice)은 주문 후 변경 불가라 Setter 없음
+    @Builder
+    private OrderEntity(
+            UserEntity user,
+            StoreEntity store,
+            int menuAmount,
+            int deliveryFee,
+            String deliveryAddress,
+            String requestNote
+    ) {
+        this.user = user;
+        this.store = store;
+        this.menuAmount = menuAmount;
+        this.deliveryFee = deliveryFee;
+        this.deliveryAddress = deliveryAddress;
+        this.requestNote = requestNote;
+        this.totalPrice = menuAmount + deliveryFee;   // 합계는 서버에서 계산
+    }
 }
