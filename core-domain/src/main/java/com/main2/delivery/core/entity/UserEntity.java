@@ -4,41 +4,33 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicInsert;
 
-import java.time.LocalDateTime;
-
+/** 개인 회원 (고객 앱) */
 @Entity
-@Table(name = "user")
+@DynamicInsert   // null 인 필드는 INSERT 에서 빼서 DB 기본값이 들어가게 함 (status)
+@Table(name = "`user`")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserEntity {
+public class UserEntity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String email;
+    @Column(nullable = false, length = 20)
+    private String phone;          // 로그인 ID. 숫자만
 
-    @Column(length = 255)
-    private String password;   // 암호화 저장. 소셜 로그인은 null
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String passwordHash;
 
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(nullable = false, length = 20)
-    private String phone;      // 숫자만 저장
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
+    @Column(length = 50)
+    private String nickname;       // 리뷰 표시명
 
     @Column(nullable = false, length = 20)
-    private String provider;   // LOCAL / KAKAO / GOOGLE
-
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private String status;         // ACTIVE / WITHDRAWN (기본값 ACTIVE 는 DB 가 넣음)
 }
