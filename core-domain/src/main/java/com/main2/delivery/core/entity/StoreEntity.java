@@ -43,6 +43,10 @@ public class StoreEntity extends BaseTimeEntity {
     private String storePhone;
 
     @Setter
+    @Column(name = "business_number", length = 12)
+    private String businessNumber;   // 000-00-00000 형식만 검사
+
+    @Setter
     @Column(nullable = false, length = 255)
     private String address;
 
@@ -61,6 +65,10 @@ public class StoreEntity extends BaseTimeEntity {
     @Setter
     @Column(name = "delivery_fee", nullable = false)
     private int deliveryFee;
+
+    @Setter
+    @Column(name = "delivery_radius_m", nullable = false)
+    private int deliveryRadiusM;     // 배달 가능 반경(미터)
 
     @Setter
     @Column(name = "open_time")
@@ -85,11 +93,13 @@ public class StoreEntity extends BaseTimeEntity {
             StoreCategoryEntity category,
             String storeName,
             String storePhone,
+            String businessNumber,
             String address,
             BigDecimal lat,
             BigDecimal lng,
             int minOrderAmount,
             int deliveryFee,
+            int deliveryRadiusM,
             LocalTime openTime,
             LocalTime closeTime,
             String imageUrl
@@ -98,11 +108,13 @@ public class StoreEntity extends BaseTimeEntity {
         this.category = category;
         this.storeName = storeName;
         this.storePhone = storePhone;
+        this.businessNumber = businessNumber;
         this.address = address;
         this.lat = lat;
         this.lng = lng;
         this.minOrderAmount = minOrderAmount;
         this.deliveryFee = deliveryFee;
+        this.deliveryRadiusM = deliveryRadiusM > 0 ? deliveryRadiusM : 3000;   // 안 넣으면 DB 기본값과 같은 3000m
         this.openTime = openTime;
         this.closeTime = closeTime;
         this.imageUrl = imageUrl;
