@@ -2,8 +2,10 @@ package com.main2.delivery.core.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.math.BigDecimal;
@@ -27,40 +29,82 @@ public class StoreEntity extends BaseTimeEntity {
     @JoinColumn(name = "owner_id")
     private OwnerEntity owner;              // 수집 가게는 null
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private StoreCategoryEntity category;   // 분류 전에는 null
 
+    @Setter
     @Column(name = "store_name", nullable = false, length = 100)
     private String storeName;
 
+    @Setter
     @Column(name = "store_phone", length = 20)
     private String storePhone;
 
+    @Setter
     @Column(nullable = false, length = 255)
     private String address;
 
+    @Setter
     @Column(nullable = false, precision = 10, scale = 7)
     private BigDecimal lat;
 
+    @Setter
     @Column(nullable = false, precision = 10, scale = 7)
     private BigDecimal lng;
 
+    @Setter
     @Column(name = "min_order_amount", nullable = false)
     private int minOrderAmount;
 
+    @Setter
     @Column(name = "delivery_fee", nullable = false)
     private int deliveryFee;
 
+    @Setter
     @Column(name = "open_time")
     private LocalTime openTime;
 
+    @Setter
     @Column(name = "close_time")
     private LocalTime closeTime;
 
+    @Setter
     @Column(nullable = false, length = 20)
     private String status;         // OPEN / PREPARING / PAUSED / CLOSED (기본값 OPEN 은 DB 가 넣음)
 
+    @Setter
     @Column(name = "image_url", length = 1000)
     private String imageUrl;
+
+    // 생성은 빌더로만 (StoreEntity.builder()...build()). status 는 넣지 않음 → DB 기본값 OPEN
+    @Builder
+    private StoreEntity(
+            OwnerEntity owner,
+            StoreCategoryEntity category,
+            String storeName,
+            String storePhone,
+            String address,
+            BigDecimal lat,
+            BigDecimal lng,
+            int minOrderAmount,
+            int deliveryFee,
+            LocalTime openTime,
+            LocalTime closeTime,
+            String imageUrl
+    ) {
+        this.owner = owner;
+        this.category = category;
+        this.storeName = storeName;
+        this.storePhone = storePhone;
+        this.address = address;
+        this.lat = lat;
+        this.lng = lng;
+        this.minOrderAmount = minOrderAmount;
+        this.deliveryFee = deliveryFee;
+        this.openTime = openTime;
+        this.closeTime = closeTime;
+        this.imageUrl = imageUrl;
+    }
 }
