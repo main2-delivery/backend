@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: customer-server
+  # backend/.env 를 읽음 (bootRun 은 모듈 폴더에서 실행되므로 ../.env 도 함께 지정)
+  config:
+    import: optional:file:.env[.properties],optional:file:../.env[.properties]
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/${DB_NAME:ddip}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DB_USER:ddip}
@@ -28,6 +31,10 @@ spring:
 internal:
   api-key: ${INTERNAL_API_KEY:local-internal-key}
   owner-base-url: ${OWNER_BASE_URL:http://localhost:8082}
+
+# 주소 → 좌표 변환 (common GeoCodingService). 키는 .env 의 KAKAO_REST_API_KEY, 없으면 변환 실패로 처리
+kakao:
+  rest-api-key: ${KAKAO_REST_API_KEY:}
 
 management:
   endpoints:
