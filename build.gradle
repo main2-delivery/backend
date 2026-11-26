@@ -45,6 +45,9 @@ subprojects {
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
 
+    // Java 17 은 OS 기본 인코딩으로 소스를 읽어 Windows(MS949)에서 한글이 깨진다
+    tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+
     tasks.named('test') { useJUnitPlatform() }
 
     // 메서드 파라미터 이름을 컴파일 결과에 남김 (@RequestParam, @PathVariable 이름 연결용)
