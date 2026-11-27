@@ -21,4 +21,11 @@ public class OrderEventListener {
         cartRedisRepository.clear(event.getUserId());
         ownerOrderNotifier.notfyCreated(event);
     }
+
+    // 주문 취소가 커밋된 뒤에만 업주에게 알림 (취소가 롤백되면 알리지 않음)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onOrderCanceled(OrderCanceledEvent event){
+        ownerOrderNotifier.notifyCanceled(event);
+    }
+
 }

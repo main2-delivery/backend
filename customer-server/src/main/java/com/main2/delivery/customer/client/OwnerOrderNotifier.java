@@ -8,6 +8,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import com.main2.delivery.customer.event.OrderCanceledEvent;
 import com.main2.delivery.customer.event.OrderCreateEvent;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,19 @@ public class OwnerOrderNotifier {
                     .toBodilessEntity();
         }catch(Exception e){
             log.warn("업주 서버 주문 알림 실패 orderId={} : {}", event.getOrderId(), e.getMessage());
+        }
+    }
+
+    // 주문 취소 알림. 실패해도 예외를 밖으로 던지지 않음 (취소는 이미 완료됨)
+    public void notifyCanceled(OrderCanceledEvent event){
+        try{
+            restClient.post()
+                    .uri("/internal/orders/canceled")
+                    .body(Map.of("orderId", event.getOrderId(), "storeId", event.getStoreId()))
+                    .retrieve()
+                    .toBodilessEntity();
+        }catch(Exception e){
+            log.warn("업주 서버 취소 알림 실패 orderId={} : {}", event.getOrderId(), e.getMessage());
         }
     }
 }
