@@ -10,6 +10,7 @@ import com.main2.delivery.core.entity.MenuEntity;
 import com.main2.delivery.core.entity.OwnerEntity;
 import com.main2.delivery.core.entity.StoreEntity;
 import com.main2.delivery.owner.dto.menu.MenuCreateResponse;
+import com.main2.delivery.owner.dto.menu.MenuFlagRequest;
 import com.main2.delivery.owner.dto.menu.MenuRequest;
 import com.main2.delivery.owner.dto.menu.MenuResponse;
 import com.main2.delivery.owner.repository.menu.MenuRepository;
@@ -66,6 +67,43 @@ public class MenuService {
     public void deleteMenu(Long ownerId, Long menuId) {
         MenuEntity menuEntity = findMyMenu(ownerId, menuId);
         menuEntity.setDeleted(true);
+    }
+
+    @Transactional
+    public MenuResponse changeSoldOut(Long ownerId, Long menuId, MenuFlagRequest req){
+        MenuEntity menuEntity = findMyMenu(ownerId, menuId);
+        menuEntity.setSoldOut(req.getValue());
+        return new MenuResponse(menuEntity);
+    }
+
+    @Transactional
+    public MenuResponse changeHidden(Long ownerId, Long menuId, MenuFlagRequest req){
+        MenuEntity menuEntity = findMyMenu(ownerId, menuId);
+        menuEntity.setHidden(req.getValue());
+        return new MenuResponse(menuEntity);
+    }
+
+    @Transactional
+    public MenuResponse changeRepresentative(Long ownerId, Long menuId, MenuFlagRequest req){
+        MenuEntity menuEntity = findMyMenu(ownerId, menuId);
+        menuEntity.setRepresentative(req.getValue());
+        return new MenuResponse(menuEntity);
+    }
+
+    // 메뉴를 복사해서 저장까지 하는 구조 (메뉴 복사의 목적이 무엇인지?)
+    @Transactional
+    public MenuCreateResponse copyMenu(Long ownerId, Long menuId){
+        MenuEntity menuEntity = findMyMenu(ownerId, menuId);
+
+        MenuEntity copy = MenuEntity.builder()
+                            .store(menuEntity.getStore())
+                            .menuName(menuEntity.getMenuName())
+                            .description(menuEntity.getDescription())
+                            .price(menuEntity.getPrice())
+                            .imageUrl(menuEntity.getImageUrl())
+                            .build();
+
+        return new MenuCreateResponse(menuRepository.save(copy).getId());
     }
 
     // 내 가게 찾기: 없으면 404, 남의 가게면 403

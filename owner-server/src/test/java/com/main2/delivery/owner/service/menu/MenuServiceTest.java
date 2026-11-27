@@ -27,6 +27,7 @@ import com.main2.delivery.core.entity.MenuEntity;
 import com.main2.delivery.core.entity.OwnerEntity;
 import com.main2.delivery.core.entity.StoreEntity;
 import com.main2.delivery.owner.dto.menu.MenuCreateResponse;
+import com.main2.delivery.owner.dto.menu.MenuFlagRequest;
 import com.main2.delivery.owner.dto.menu.MenuRequest;
 import com.main2.delivery.owner.dto.menu.MenuResponse;
 import com.main2.delivery.owner.repository.menu.MenuRepository;
@@ -275,7 +276,150 @@ class MenuServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("품절·숨김·대표 변경")
+    class ChangeFlag {
+
+        @Test
+        void 품절을_켜고_끌_수_있다() {
+            given(menuRepository.findByIdAndDeletedFalse(MY_MENU_ID)).willReturn(Optional.of(myMenu));
+
+            MenuResponse on = menuService.changeSoldOut(MY_OWNER_ID, MY_MENU_ID, flag(true));
+            assertThat(myMenu.isSoldOut()).isTrue();
+            assertThat(on.isSoldOut()).isTrue();
+
+            MenuResponse off = menuService.changeSoldOut(MY_OWNER_ID, MY_MENU_ID, flag(false));
+            assertThat(myMenu.isSoldOut()).isFalse();
+            assertThat(off.isSoldOut()).isFalse();
+        }
+
+        @Test
+        void 같은_값을_두_번_보내도_결과가_같다() {
+            given(menuRepository.findByIdAndDeletedFalse(MY_MENU_ID)).willReturn(Optional.of(myMenu));
+
+            menuService.changeSoldOut(MY_OWNER_ID, MY_MENU_ID, flag(true));
+            menuService.changeSoldOut(MY_OWNER_ID, MY_MENU_ID, flag(true));   // 토글이 아니라 다시 품절
+
+            assertThat(myMenu.isSoldOut()).isTrue();
+        }
+
+        @Test
+        void 숨김은_숨김만_바뀐다() {
+            given(menuRepository.findByIdAndDeletedFalse(MY_MENU_ID)).willReturn(Optional.of(myMenu));
+
+            MenuResponse result = menuService.changeHidden(MY_OWNER_ID, MY_MENU_ID, flag(true));
+
+            assertThat(myMenu.isHidden()).isTrue();
+            assertThat(myMenu.isSoldOut()).isFalse();
+            assertThat(myMenu.isRepresentative()).isFalse();
+            assertThat(result.isHidden()).isTrue();
+        }
+
+        @Test
+        void 대표메뉴는_대표만_바뀐다() {
+            given(menuRepository.findByIdAndDeletedFalse(MY_MENU_ID)).willReturn(Optional.of(myMenu));
+
+            MenuResponse result = menuService.changeRepresentative(MY_OWNER_ID, MY_MENU_ID, flag(true));
+
+            assertThat(myMenu.isRepresentative()).isTrue();
+            assertThat(myMenu.isSoldOut()).isFalse();
+            assertThat(myMenu.isHidden()).isFalse();
+            assertThat(result.isRepresentative()).isTrue();
+        }
+
+        @Test
+        void 다른_업주의_메뉴는_바꿀_수_없다_403() {
+            given(menuRepository.findByIdAndDeletedFalse(MY_MENU_ID)).willReturn(Optional.of(myMenu));
+
+            assertErrorCode(() -> menuService.changeSoldOut(OTHER_OWNER_ID, MY_MENU_ID, flag(true)), CommonErrorCode.COMMON_FORBIDDEN);
+            assertErrorCode(() -> menuService.changeHidden(OTHER_OWNER_ID, MY_MENU_ID, flag(true)), CommonErrorCode.COMMON_FORBIDDEN);
+            assertErrorCode(() -> menuService.changeRepresentative(OTHER_OWNER_ID, MY_MENU_ID, flag(true)), CommonErrorCode.COMMON_FORBIDDEN);
+
+            assertThat(myMenu.isSoldOut()).isFalse();
+            assertThat(myMenu.isHidden()).isFalse();
+            assertThat(myMenu.isRepresentative()).isFalse();
+        }
+
+        @Test
+        void 수집_가게의_메뉴는_바꿀_수_없다_403() {
+            MenuEntity collectedMenu = MenuEntity.builder().store(collectedStore).menuName("수집메뉴").price(1000).build();
+            setId(collectedMenu, 300L);
+            given(menuRepository.findByIdAndDeletedFalse(300L)).willReturn(Optional.of(collectedMenu));
+
+            assertErrorCode(() -> menuService.changeSoldOut(MY_OWNER_ID, 300L, flag(true)), CommonErrorCode.COMMON_FORBIDDEN);
+            assertThat(collectedMenu.isSoldOut()).isFalse();
+        }
+
+        @Test
+        void 없거나_삭제된_메뉴는_404() {
+            given(menuRepository.findByIdAndDeletedFalse(MY_MENU_ID)).willReturn(Optional.empty());
+
+            assertErrorCode(() -> menuService.changeSoldOut(MY_OWNER_ID, MY_MENU_ID, flag(true)), CommonErrorCode.COMMON_NOT_FOUND);
+            assertErrorCode(() -> menuService.changeHidden(MY_OWNER_ID, MY_MENU_ID, flag(true)), CommonErrorCode.COMMON_NOT_FOUND);
+            assertErrorCode(() -> menuService.changeRepresentative(MY_OWNER_ID, MY_MENU_ID, flag(true)), CommonErrorCode.COMMON_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("메뉴 복사")
+    class Copy {
+
+        @Test
+        void 내용은_복사하고_품절_숨김_대표는_false로_새로_만든다() {
+            myMenu.setImageUrl("https://img.test/a.png");
+            myMenu.setSoldOut(true);
+            myMenu.setHidden(true);
+            myMenu.setRepresentative(true);
+            given(menuRepository.findByIdAndDeletedFalse(MY_MENU_ID)).willReturn(Optional.of(myMenu));
+            given(menuRepository.save(any(MenuEntity.class))).willAnswer(invocation -> {
+                MenuEntity saved = invocation.getArgument(0);
+                setId(saved, 201L);
+                return saved;
+            });
+
+            MenuCreateResponse result = menuService.copyMenu(MY_OWNER_ID, MY_MENU_ID);
+
+            ArgumentCaptor<MenuEntity> captor = ArgumentCaptor.forClass(MenuEntity.class);
+            verify(menuRepository).save(captor.capture());
+            MenuEntity copy = captor.getValue();
+
+            assertThat(result.getMenuId()).isEqualTo(201L);
+            assertThat(copy).isNotSameAs(myMenu);
+            assertThat(copy.getStore()).isSameAs(myStore);
+            assertThat(copy.getMenuName()).isEqualTo("후라이드");
+            assertThat(copy.getDescription()).isEqualTo("바삭한 후라이드");
+            assertThat(copy.getPrice()).isEqualTo(23000);
+            assertThat(copy.getImageUrl()).isEqualTo("https://img.test/a.png");
+            assertThat(copy.isSoldOut()).isFalse();
+            assertThat(copy.isHidden()).isFalse();
+            assertThat(copy.isRepresentative()).isFalse();
+            assertThat(copy.isDeleted()).isFalse();
+        }
+
+        @Test
+        void 다른_업주의_메뉴는_복사할_수_없다_403() {
+            given(menuRepository.findByIdAndDeletedFalse(MY_MENU_ID)).willReturn(Optional.of(myMenu));
+
+            assertErrorCode(() -> menuService.copyMenu(OTHER_OWNER_ID, MY_MENU_ID), CommonErrorCode.COMMON_FORBIDDEN);
+            verify(menuRepository, never()).save(any());
+        }
+
+        @Test
+        void 없거나_삭제된_메뉴는_복사할_수_없다_404() {
+            given(menuRepository.findByIdAndDeletedFalse(MY_MENU_ID)).willReturn(Optional.empty());
+
+            assertErrorCode(() -> menuService.copyMenu(MY_OWNER_ID, MY_MENU_ID), CommonErrorCode.COMMON_NOT_FOUND);
+            verify(menuRepository, never()).save(any());
+        }
+    }
+
     // ===== 도우미 =====
+
+    private static MenuFlagRequest flag(boolean value) {
+        MenuFlagRequest req = new MenuFlagRequest();
+        req.setValue(value);
+        return req;
+    }
 
     // 엔티티 id는 Setter가 없고 DB가 정해 주므로, 테스트에서만 직접 넣는다
     private static void setId(Object entity, Long id) {
