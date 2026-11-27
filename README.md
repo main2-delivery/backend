@@ -20,6 +20,14 @@
 접속 정보 기본값은 `docker-compose.yml`과 맞춰져 있어 `.env` 없이도 로컬에서 실행된다.
 값을 바꾸려면 `.env.example`을 `.env`로 복사해 수정한다. `.env`는 올리지 않는다.
 
+### .env 읽기와 카카오 키
+- 고객·업주 서버는 `spring.config.import`로 `backend/.env`를 직접 읽는다 (Spring은 `.env`를 자동으로 읽지 않음).
+- 주소 → 좌표 변환(`common`의 `GeoCodingService`)은 카카오 REST API 키가 필요하다. 팀 공용 키를 개인 메시지로 받아 `.env`에 넣는다.
+  ```
+  KAKAO_REST_API_KEY=받은키
+  ```
+- 키가 비어 있어도 서버는 뜬다. 이때 주소 → 좌표 변환만 실패(400)로 처리된다.
+
 ## 측정 (Before/After)
 | 도구 | 주소 | 용도 |
 |---|---|---|
