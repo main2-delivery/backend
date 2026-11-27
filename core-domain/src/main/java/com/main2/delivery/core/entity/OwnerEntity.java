@@ -21,8 +21,11 @@ public class OwnerEntity extends BaseTimeEntity {
     @Column(name = "owner_id")
     private Long id;
 
+    @Column(name = "login_id", nullable = false, unique = true, length = 50)
+    private String loginId;        // 로그인 ID (가입 후 변경 불가라 @Setter 없음)
+
     @Column(nullable = false, length = 20)
-    private String phone;          // 로그인 ID. 숫자만
+    private String phone;          // 중복 가입 방지용. 숫자만
 
     @Setter
     @Column(name = "password_hash", nullable = false, length = 255)
@@ -39,10 +42,12 @@ public class OwnerEntity extends BaseTimeEntity {
     // 생성은 빌더로만 (OwnerEntity.builder()...build()). status 는 넣지 않음 → DB 기본값 ACTIVE
     @Builder
     private OwnerEntity(
+            String loginId,
             String phone,
             String passwordHash,
             String name
     ) {
+        this.loginId = loginId;
         this.phone = phone;
         this.passwordHash = passwordHash;
         this.name = name;
