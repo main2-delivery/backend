@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -49,8 +50,26 @@ public class OrderEntity extends BaseTimeEntity {   // created_at = 주문 시�
     @Column(name = "delivery_address", nullable = false, length = 255)
     private String deliveryAddress; // 주문 시점 복사
 
+    @Column(name = "order_key", nullable = false, length = 64, unique = true)
+    private String orderKey;        // 중복 주문 방지 키 (앱이 주문서 진입 시 생성)
+
     @Column(name = "request_note", length = 255)
     private String requestNote;
+
+    @Column(name = "delivery_address_detail", length = 100)
+    private String deliveryAddressDetail;   // 주문 시점 복사
+
+    @Column(name = "delivery_lat", nullable = false, precision = 10, scale = 7)
+    private BigDecimal deliveryLat;         // 주문 시점 복사
+
+    @Column(name = "delivery_lng", nullable = false, precision = 10, scale = 7)
+    private BigDecimal deliveryLng;         // 주문 시점 복사
+
+    @Column(name = "payment_method", nullable = false, length = 20)
+    private String paymentMethod;   // CARD / EASY_PAY (Sprint 1은 저장만)
+
+    @Version
+    private Long version;           // 낙관적 락 (접수 vs 취소 동시 요청)
 
     @Setter
     @Column(name = "cancel_reason", length = 255)
@@ -75,19 +94,29 @@ public class OrderEntity extends BaseTimeEntity {   // created_at = 주문 시�
     // 생성은 빌더로만 (OrderEntity.builder()...build()). status 는 PENDING 으로 시작. 금액(menuAmount·deliveryFee·totalPrice)은 주문 후 변경 불가라 Setter 없음
     @Builder
     private OrderEntity(
+            String orderKey,
             UserEntity user,
             StoreEntity store,
             int menuAmount,
             int deliveryFee,
             String deliveryAddress,
-            String requestNote
+            String deliveryAddressDetail,
+            BigDecimal deliveryLat,
+            BigDecimal deliveryLng,
+            String requestNote,
+            String paymentMethod
     ) {
+        this.orderKey = orderKey;
         this.user = user;
         this.store = store;
         this.menuAmount = menuAmount;
         this.deliveryFee = deliveryFee;
         this.deliveryAddress = deliveryAddress;
+        this.deliveryAddressDetail = deliveryAddressDetail;
+        this.deliveryLat = deliveryLat;
+        this.deliveryLng = deliveryLng;
         this.requestNote = requestNote;
+        this.paymentMethod = paymentMethod;
         this.totalPrice = menuAmount + deliveryFee;   // 합계는 서버에서 계산
     }
 }
