@@ -3,11 +3,11 @@ package com.main2.delivery.owner.controller.store;
 import com.main2.delivery.common.exception.BusinessException;
 import com.main2.delivery.common.exception.CommonErrorCode;
 import com.main2.delivery.common.response.ApiResponse;
-import com.main2.delivery.owner.dto.store.StoreCreateRequest;
-import com.main2.delivery.owner.dto.store.StoreCreateResponse;
-import com.main2.delivery.owner.dto.store.StoreDetailResponse;
-import com.main2.delivery.owner.dto.store.StoreSummaryResponse;
-import com.main2.delivery.owner.dto.store.StoreUpdateRequest;
+import com.main2.delivery.owner.dto.store.StoreCreateRequestDto;
+import com.main2.delivery.owner.dto.store.StoreCreateResponseDto;
+import com.main2.delivery.owner.dto.store.StoreDetailResponseDto;
+import com.main2.delivery.owner.dto.store.StoreSummaryResponseDto;
+import com.main2.delivery.owner.dto.store.StoreUpdateRequestDto;
 import com.main2.delivery.owner.exception.OwnerErrorCode;
 import com.main2.delivery.owner.service.store.StoreService;
 import lombok.RequiredArgsConstructor;
@@ -35,22 +35,22 @@ public class StoreController {
     // 1. 입점 신청
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<StoreCreateResponse> apply(@RequestHeader(value = "X-Test-User-Id", required = false) Long userId,
+    public ApiResponse<StoreCreateResponseDto> apply(@RequestHeader(value = "X-Test-User-Id", required = false) Long userId,
                                                   @RequestHeader(value = "X-Test-Role", required = false) String role,
-                                                  @RequestBody StoreCreateRequest request) {
+                                                  @RequestBody StoreCreateRequestDto request) {
         return ApiResponse.ok(storeService.apply(loginOwnerId(userId, role), request));
     }
 
     // 2. 내 가게 목록
     @GetMapping
-    public ApiResponse<List<StoreSummaryResponse>> getMyStores(@RequestHeader(value = "X-Test-User-Id", required = false) Long userId,
+    public ApiResponse<List<StoreSummaryResponseDto>> getMyStores(@RequestHeader(value = "X-Test-User-Id", required = false) Long userId,
                                                                @RequestHeader(value = "X-Test-Role", required = false) String role) {
         return ApiResponse.ok(storeService.getMyStores(loginOwnerId(userId, role)));
     }
 
     // 3. 가게 정보 조회
     @GetMapping("/{storeId}")
-    public ApiResponse<StoreDetailResponse> getMyStore(@RequestHeader(value = "X-Test-User-Id", required = false) Long userId,
+    public ApiResponse<StoreDetailResponseDto> getMyStore(@RequestHeader(value = "X-Test-User-Id", required = false) Long userId,
                                                        @RequestHeader(value = "X-Test-Role", required = false) String role,
                                                        @PathVariable Long storeId) {
         return ApiResponse.ok(storeService.getMyStore(loginOwnerId(userId, role), storeId));
@@ -58,10 +58,10 @@ public class StoreController {
 
     // 4. 가게 정보 수정
     @PutMapping("/{storeId}")
-    public ApiResponse<StoreDetailResponse> updateMyStore(@RequestHeader(value = "X-Test-User-Id", required = false) Long userId,
+    public ApiResponse<StoreDetailResponseDto> updateMyStore(@RequestHeader(value = "X-Test-User-Id", required = false) Long userId,
                                                           @RequestHeader(value = "X-Test-Role", required = false) String role,
                                                           @PathVariable Long storeId,
-                                                          @RequestBody StoreUpdateRequest request) {
+                                                          @RequestBody StoreUpdateRequestDto request) {
         return ApiResponse.ok(storeService.updateMyStore(loginOwnerId(userId, role), storeId, request));
     }
 

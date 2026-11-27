@@ -13,13 +13,13 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StoreCreateResponse {
+public class StoreCreateResponseDto {
     private Long storeId;
     private BigDecimal lat;
     private BigDecimal lng;
 
-    public static StoreCreateResponse from(StoreEntity store) {
-        return StoreCreateResponse.builder()
+    public static StoreCreateResponseDto from(StoreEntity store) {
+        return StoreCreateResponseDto.builder()
                 .storeId(store.getId())
                 .lat(store.getLat())
                 .lng(store.getLng())

@@ -6,11 +6,11 @@ import com.main2.delivery.common.geocode.GeoPoint;
 import com.main2.delivery.core.entity.OwnerEntity;
 import com.main2.delivery.core.entity.StoreCategoryEntity;
 import com.main2.delivery.core.entity.StoreEntity;
-import com.main2.delivery.owner.dto.store.StoreCreateRequest;
-import com.main2.delivery.owner.dto.store.StoreCreateResponse;
-import com.main2.delivery.owner.dto.store.StoreDetailResponse;
-import com.main2.delivery.owner.dto.store.StoreSummaryResponse;
-import com.main2.delivery.owner.dto.store.StoreUpdateRequest;
+import com.main2.delivery.owner.dto.store.StoreCreateRequestDto;
+import com.main2.delivery.owner.dto.store.StoreCreateResponseDto;
+import com.main2.delivery.owner.dto.store.StoreDetailResponseDto;
+import com.main2.delivery.owner.dto.store.StoreSummaryResponseDto;
+import com.main2.delivery.owner.dto.store.StoreUpdateRequestDto;
 import com.main2.delivery.owner.exception.OwnerErrorCode;
 import com.main2.delivery.owner.repository.owner.OwnerRepository;
 import com.main2.delivery.owner.repository.store.StoreCategoryRepository;
@@ -37,7 +37,7 @@ public class StoreService {
 
     // 1. 입점 신청: 주소를 좌표로 못 바꾸면 가게를 만들지 않는다
     @Transactional
-    public StoreCreateResponse apply(Long ownerId, StoreCreateRequest request) {
+    public StoreCreateResponseDto apply(Long ownerId, StoreCreateRequestDto request) {
         validateCreate(request);
         OwnerEntity owner = ownerRepository.findById(ownerId)
                 .orElseThrow(() -> new BusinessException(OwnerErrorCode.OWNER_NOT_FOUND));
@@ -61,25 +61,25 @@ public class StoreService {
                 .build();
         store.setStatus("PREPARING");
         StoreEntity saved = storeRepository.save(store);
-        return StoreCreateResponse.from(saved);
+        return StoreCreateResponseDto.from(saved);
     }
 
     // 2. 내 가게 목록
-    public List<StoreSummaryResponse> getMyStores(Long ownerId) {
+    public List<StoreSummaryResponseDto> getMyStores(Long ownerId) {
         List<StoreEntity> stores = storeRepository.findAllByOwnerIdOrderByIdAsc(ownerId);
-        List<StoreSummaryResponse> result = new ArrayList<>();
-        stores.forEach(store -> result.add(StoreSummaryResponse.from(store)));
+        List<StoreSummaryResponseDto> result = new ArrayList<>();
+        stores.forEach(store -> result.add(StoreSummaryResponseDto.from(store)));
         return result;
     }
 
     // 3. 가게 정보 조회
-    public StoreDetailResponse getMyStore(Long ownerId, Long storeId) {
-        return StoreDetailResponse.from(findMyStore(ownerId, storeId));
+    public StoreDetailResponseDto getMyStore(Long ownerId, Long storeId) {
+        return StoreDetailResponseDto.from(findMyStore(ownerId, storeId));
     }
 
     // 4. 가게 정보 수정: 엔티티 값만 바꾸면 트랜잭션이 끝날 때 UPDATE 된다
     @Transactional
-    public StoreDetailResponse updateMyStore(Long ownerId, Long storeId, StoreUpdateRequest request) {
+    public StoreDetailResponseDto updateMyStore(Long ownerId, Long storeId, StoreUpdateRequestDto request) {
         validateUpdate(request);
         StoreEntity store = findMyStore(ownerId, storeId);
         store.setStorePhone(request.getPhone());
@@ -89,7 +89,7 @@ public class StoreService {
         store.setDeliveryFee(request.getDeliveryFee());
         store.setDeliveryRadiusM(request.getDeliveryRadiusM());
         store.setImageUrl(request.getLogoUrl());
-        return StoreDetailResponse.from(store);
+        return StoreDetailResponseDto.from(store);
     }
 
     // 없는 가게는 404, 다른 업주의 가게는 403
@@ -103,7 +103,7 @@ public class StoreService {
     }
 
     // 입점 신청 입력값 검사
-    private void validateCreate(StoreCreateRequest request) {
+    private void validateCreate(StoreCreateRequestDto request) {
         if (isBlank(request.getName()) || request.getName().trim().length() > 100) {
             throw new BusinessException(OwnerErrorCode.STORE_INVALID_NAME);
         }
@@ -119,7 +119,7 @@ public class StoreService {
     }
 
     // 가게 정보 수정 입력값 검사 (영업시간은 둘 다 있거나 둘 다 없고, 같은 시각이면 안 된다)
-    private void validateUpdate(StoreUpdateRequest request) {
+    private void validateUpdate(StoreUpdateRequestDto request) {
         if (request.getPhone() == null || !request.getPhone().matches(PHONE_PATTERN)) {
             throw new BusinessException(OwnerErrorCode.STORE_INVALID_PHONE);
         }

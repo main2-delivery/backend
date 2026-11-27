@@ -12,7 +12,7 @@ import java.time.LocalTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StoreUpdateRequest {
+public class StoreUpdateRequestDto {
     private String phone;
     private LocalTime openTime;
     private LocalTime closeTime;

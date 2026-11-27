@@ -2,10 +2,10 @@ package com.main2.delivery.owner.service.store;
 
 import com.main2.delivery.core.entity.OwnerEntity;
 import com.main2.delivery.core.entity.StoreEntity;
-import com.main2.delivery.owner.dto.store.StoreCreateRequest;
-import com.main2.delivery.owner.dto.store.StoreCreateResponse;
-import com.main2.delivery.owner.dto.store.StoreDetailResponse;
-import com.main2.delivery.owner.dto.store.StoreUpdateRequest;
+import com.main2.delivery.owner.dto.store.StoreCreateRequestDto;
+import com.main2.delivery.owner.dto.store.StoreCreateResponseDto;
+import com.main2.delivery.owner.dto.store.StoreDetailResponseDto;
+import com.main2.delivery.owner.dto.store.StoreUpdateRequestDto;
 import com.main2.delivery.common.exception.ErrorCode;
 import com.main2.delivery.owner.exception.OwnerErrorCode;
 import com.main2.delivery.common.exception.BusinessException;
@@ -49,8 +49,8 @@ class StoreServiceTest {
     @Mock GeoCodingService geoCodingService;
     @InjectMocks StoreService storeService;
 
-    private StoreCreateRequest createRequest() {
-        return StoreCreateRequest.builder()
+    private StoreCreateRequestDto createRequest() {
+        return StoreCreateRequestDto.builder()
                 .name("띱치킨 안양점")
                 .address("경기도 안양시 동안구 시민대로 100")
                 .phone("031-123-4567")
@@ -58,8 +58,8 @@ class StoreServiceTest {
                 .build();
     }
 
-    private StoreUpdateRequest updateRequest() {
-        return StoreUpdateRequest.builder()
+    private StoreUpdateRequestDto updateRequest() {
+        return StoreUpdateRequestDto.builder()
                 .phone("031-765-4321")
                 .openTime(LocalTime.of(11, 0))
                 .closeTime(LocalTime.of(23, 0))
@@ -103,7 +103,7 @@ class StoreServiceTest {
             return saved;
         });
 
-        StoreCreateResponse response = storeService.apply(OWNER_ID, createRequest());
+        StoreCreateResponseDto response = storeService.apply(OWNER_ID, createRequest());
 
         assertThat(response.getStoreId()).isEqualTo(99L);
         assertThat(response.getLat()).isEqualByComparingTo(POINT.getLat());
@@ -123,9 +123,9 @@ class StoreServiceTest {
     @Test
     @DisplayName("사업자등록번호·전화번호 형식이 틀리면 400")
     void apply_invalidFormats() {
-        StoreCreateRequest badBusinessNumber = createRequest();
+        StoreCreateRequestDto badBusinessNumber = createRequest();
         badBusinessNumber.setBusinessNumber("1234567890");
-        StoreCreateRequest badPhone = createRequest();
+        StoreCreateRequestDto badPhone = createRequest();
         badPhone.setPhone("0311234567");
 
         assertError(() -> storeService.apply(OWNER_ID, badBusinessNumber), OwnerErrorCode.STORE_INVALID_BUSINESS_NUMBER);
@@ -138,7 +138,7 @@ class StoreServiceTest {
     void apply_failsWhenCategoryMissing() {
         given(ownerRepository.findById(OWNER_ID)).willReturn(Optional.of(mock(OwnerEntity.class)));
         given(storeCategoryRepository.findById(7L)).willReturn(Optional.empty());
-        StoreCreateRequest request = createRequest();
+        StoreCreateRequestDto request = createRequest();
         request.setCategoryId(7L);
 
         assertError(() -> storeService.apply(OWNER_ID, request), OwnerErrorCode.STORE_CATEGORY_NOT_FOUND);
@@ -168,7 +168,7 @@ class StoreServiceTest {
         StoreEntity store = storeOwnedBy(OWNER_ID);
         given(storeRepository.findById(10L)).willReturn(Optional.of(store));
 
-        StoreDetailResponse response = storeService.updateMyStore(OWNER_ID, 10L, updateRequest());
+        StoreDetailResponseDto response = storeService.updateMyStore(OWNER_ID, 10L, updateRequest());
 
         assertThat(response.getMinOrderAmount()).isEqualTo(15000);
         assertThat(response.getDeliveryFee()).isEqualTo(3000);
@@ -180,11 +180,11 @@ class StoreServiceTest {
     @Test
     @DisplayName("금액이 음수, 반경이 0, 영업시간이 하나만 있으면 400")
     void updateMyStore_invalidValues() {
-        StoreUpdateRequest negativeFee = updateRequest();
+        StoreUpdateRequestDto negativeFee = updateRequest();
         negativeFee.setDeliveryFee(-1);
-        StoreUpdateRequest zeroRadius = updateRequest();
+        StoreUpdateRequestDto zeroRadius = updateRequest();
         zeroRadius.setDeliveryRadiusM(0);
-        StoreUpdateRequest onlyOpen = updateRequest();
+        StoreUpdateRequestDto onlyOpen = updateRequest();
         onlyOpen.setCloseTime(null);
 
         assertError(() -> storeService.updateMyStore(OWNER_ID, 10L, negativeFee), OwnerErrorCode.STORE_INVALID_AMOUNT);

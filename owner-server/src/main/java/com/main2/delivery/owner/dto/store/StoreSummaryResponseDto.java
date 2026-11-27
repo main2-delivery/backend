@@ -11,14 +11,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StoreSummaryResponse {
+public class StoreSummaryResponseDto {
     private Long storeId;
     private String name;
     private String address;
     private String status;
 
-    public static StoreSummaryResponse from(StoreEntity store) {
-        return StoreSummaryResponse.builder()
+    public static StoreSummaryResponseDto from(StoreEntity store) {
+        return StoreSummaryResponseDto.builder()
                 .storeId(store.getId())
                 .name(store.getStoreName())
                 .address(store.getAddress())

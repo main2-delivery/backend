@@ -1,6 +1,6 @@
 package com.main2.delivery.owner.controller.store;
 
-import com.main2.delivery.owner.dto.store.StoreCreateResponse;
+import com.main2.delivery.owner.dto.store.StoreCreateResponseDto;
 import com.main2.delivery.owner.exception.OwnerErrorCode;
 import com.main2.delivery.common.exception.BusinessException;
 import com.main2.delivery.owner.service.store.StoreService;
@@ -46,7 +46,7 @@ class StoreControllerTest {
     @DisplayName("입점 신청 성공 시 201과 가게 번호·좌표를 돌려준다")
     void apply_returns201() throws Exception {
         given(storeService.apply(eq(1L), any())).willReturn(
-                new StoreCreateResponse(12L, new BigDecimal("37.3943000"), new BigDecimal("126.9568000")));
+                new StoreCreateResponseDto(12L, new BigDecimal("37.3943000"), new BigDecimal("126.9568000")));
 
         mockMvc.perform(asOwner(post("/api/owner/stores")).content(CREATE_BODY))
                 .andExpect(status().isCreated())

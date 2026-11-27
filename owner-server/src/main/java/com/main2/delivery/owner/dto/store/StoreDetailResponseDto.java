@@ -14,7 +14,7 @@ import java.time.LocalTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StoreDetailResponse {
+public class StoreDetailResponseDto {
     private Long storeId;
     private String name;
     private Long categoryId;
@@ -32,9 +32,9 @@ public class StoreDetailResponse {
     private String status;
     private String logoUrl;
 
-    public static StoreDetailResponse from(StoreEntity store) {
+    public static StoreDetailResponseDto from(StoreEntity store) {
         boolean hasCategory = store.getCategory() != null;
-        return StoreDetailResponse.builder()
+        return StoreDetailResponseDto.builder()
                 .storeId(store.getId())
                 .name(store.getStoreName())
                 .categoryId(hasCategory ? store.getCategory().getId() : null)
