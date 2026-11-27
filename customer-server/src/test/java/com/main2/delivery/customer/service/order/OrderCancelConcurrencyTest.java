@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +27,9 @@ import com.main2.delivery.customer.repository.store.StoreRepository;
 import com.main2.delivery.customer.repository.user.UserRepository;
 
 // 진짜 DB(도커 MySQL)로 돌리는 통합 테스트. 도커가 켜져 있어야 함
+// GitHub CI에는 MySQL이 없어서 CI에서는 건너뜀 (로컬에서만 실행)
 @SpringBootTest
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class OrderCancelConcurrencyTest {
 
     @Autowired OrderService orderService;
