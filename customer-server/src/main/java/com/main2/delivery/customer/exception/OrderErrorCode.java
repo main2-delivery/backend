@@ -17,8 +17,11 @@ public enum OrderErrorCode implements ErrorCode {
     ORDER_MIN_AMOUNT_NOT_MET(HttpStatus.BAD_REQUEST, "최소 주문 금액을 채워주세요."),
     ORDER_OUT_OF_DELIVERY_AREA(HttpStatus.BAD_REQUEST, "배달 가능한 거리를 벗어난 주소입니다."),
     ORDER_ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "배달 주소를 찾을 수 없습니다."),
-    ORDER_KEY_CONFLICT(HttpStatus.CONFLICT, "이미 사용된 주문 키입니다.");
-
+    ORDER_KEY_CONFLICT(HttpStatus.CONFLICT, "이미 사용된 주문 키입니다."),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
+    ORDER_NOT_CANCELABLE(HttpStatus.CONFLICT, "접수 대기 중인 주문만 취소할 수 있습니다."),
+    ORDER_CONCURRENT_UPDATE(HttpStatus.CONFLICT, "주문 상태가 방금 바뀌었습니다. 다시 확인해주세요.");
+    
     private final HttpStatus status;
     private final String message;
 }

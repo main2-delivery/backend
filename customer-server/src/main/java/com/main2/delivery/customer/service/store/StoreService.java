@@ -21,6 +21,7 @@ import com.main2.delivery.customer.repository.review.ReviewRepository;
 import com.main2.delivery.customer.repository.review.StoreRatingSummary;
 import com.main2.delivery.customer.repository.store.MenuRepository;
 import com.main2.delivery.customer.repository.store.StoreRepository;
+import com.main2.delivery.customer.util.DistanceUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -57,7 +58,7 @@ public class StoreService {
         // 2. 실제 거리를 계산해서 가게 배달 반경 안만 남김
         List<StoreListResponse> inRange = new ArrayList<>();
         for (StoreEntity store : candidates) {
-            double distance = distanceM(myLat, myLng,
+            double distance = DistanceUtils.meters(myLat, myLng,
                     store.getLat().doubleValue(), store.getLng().doubleValue());
             if (distance <= store.getDeliveryRadiusM()) {
                 inRange.add(new StoreListResponse(store, (int) Math.round(distance)));
@@ -148,15 +149,4 @@ public class StoreService {
         }
         return Math.round(avg * 10) / 10.0;
     }
-
-    // 두 위경도 사이 거리 (미터, 하버사인 공식)
-    private double distanceM(double lat1, double lng1, double lat2, double lng2) {
-        double earthRadius = 6371000;
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLng = Math.toRadians(lng2 - lng1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
-}
+}      
