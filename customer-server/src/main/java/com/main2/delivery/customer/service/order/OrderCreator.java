@@ -17,7 +17,7 @@ import com.main2.delivery.core.entity.StoreEntity;
 import com.main2.delivery.core.entity.UserAddressEntity;
 import com.main2.delivery.core.entity.UserEntity;
 import com.main2.delivery.customer.dto.order.OrderCreateRequest;
-import com.main2.delivery.customer.event.OrderCreateEvent;
+import com.main2.delivery.core.event.OrderEvent;
 import com.main2.delivery.customer.exception.OrderErrorCode;
 import com.main2.delivery.customer.repository.address.UserAddressRepository;
 import com.main2.delivery.customer.repository.cart.CartRedisRepository;
@@ -119,9 +119,8 @@ public class OrderCreator {
     // 접수 대기로 확정 + 커밋 후 알림 예약
     // Sprint 1: 저장 직후 바로 호출 / Spring2: 결제 승인 후 호출하도록 분리
     private void confirm(OrderEntity order){
-        // 상태는 생성 시 이미 PENDING. Spring2에 '결제대기' 상태가 생기면 여기서 PENDING으로 바꿈
-        eventPublisher.publishEvent(
-            new OrderCreateEvent(order.getId(), order.getStore().getId(), order.getUser().getId()));
+        // 상태는 생성 시 이미 PENDING. Sprint 2에 '결제대기' 상태가 생기면 여기서 PENDING으로 바꿈
+        eventPublisher.publishEvent(OrderEvent.created(order));
     }
 
     // 주문 가능한 메뉴인지 (가격있음 + 품절-숨김-삭제 아님)

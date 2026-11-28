@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.main2.delivery.common.exception.BusinessException;
 import com.main2.delivery.core.entity.OrderEntity;
 import com.main2.delivery.core.entity.OrderStatus;
-import com.main2.delivery.customer.event.OrderCanceledEvent;
+import com.main2.delivery.core.event.OrderEvent; 
 import com.main2.delivery.customer.exception.OrderErrorCode;
 import com.main2.delivery.customer.repository.order.OrderRepository;
 
@@ -38,8 +38,8 @@ public class OrderCanceler {
         order.setCancelReason(reason); 
         order.setCanceledAt(LocalDateTime.now());
 
-        // [4] 커밋되면 업주 알림
-        eventPublisher.publishEvent(new OrderCanceledEvent(order.getId(), order.getStore().getId(), reason));
+        // [4] 커밋되면 업주 알림 + 추적 화면 전달 (reason은 payload에 담김)
+        eventPublisher.publishEvent(OrderEvent.canceled(order));
         return order;
     }
 }
