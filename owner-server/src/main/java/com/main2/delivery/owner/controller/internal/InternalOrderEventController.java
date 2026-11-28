@@ -21,7 +21,7 @@ public class InternalOrderEventController {
     private final OrderEventHandler orderEventHandler;
 
     @PostMapping 
-    public ApiResponse<Void> recieve(@RequestBody OrderEvent event){
+    public ApiResponse<Void> receive(@RequestBody OrderEvent event){
         orderEventHandler.handle(event);
         return ApiResponse.ok();
     }
