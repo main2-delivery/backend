@@ -42,5 +42,8 @@ application-local.yml
 *.pem
 *.key
 
+### 업로드한 이미지 (로컬 저장소) ###
+uploads/
+
 ### 데이터 적재 묶음 (zip으로 따로 공유) ###
 db_import/

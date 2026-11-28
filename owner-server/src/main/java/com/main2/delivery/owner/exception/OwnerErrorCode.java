@@ -26,7 +26,12 @@ public enum OwnerErrorCode implements ErrorCode {
     STORE_NOT_OWNER(HttpStatus.FORBIDDEN, "내 가게가 아닙니다."),
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다."),
     STORE_INVALID_STATUS(HttpStatus.BAD_REQUEST, "영업 상태는 OPEN, PREPARING, PAUSED, CLOSED 중 하나입니다."),
-    STORE_OPEN_REQUIREMENTS_NOT_MET(HttpStatus.BAD_REQUEST, "영업시간을 먼저 입력해야 영업을 시작할 수 있습니다.");
+    STORE_OPEN_REQUIREMENTS_NOT_MET(HttpStatus.BAD_REQUEST, "영업시간을 먼저 입력해야 영업을 시작할 수 있습니다."),
+
+    IMAGE_EMPTY(HttpStatus.BAD_REQUEST, "업로드할 이미지 파일을 넣어 주세요."),
+    IMAGE_INVALID_TYPE(HttpStatus.BAD_REQUEST, "jpg, png, webp, gif 이미지만 올릴 수 있습니다."),
+    IMAGE_TOO_LARGE(HttpStatus.BAD_REQUEST, "이미지는 5MB까지 올릴 수 있습니다."),
+    IMAGE_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.");
 
     private final HttpStatus status;
     private final String message;

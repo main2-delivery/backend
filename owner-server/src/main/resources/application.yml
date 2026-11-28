@@ -7,6 +7,11 @@ spring:
   # backend/.env 를 읽음 (bootRun 은 모듈 폴더에서 실행되므로 ../.env 도 함께 지정)
   config:
     import: optional:file:.env[.properties],optional:file:../.env[.properties]
+  # 이미지 업로드 크기 제한 (ImageService.MAX_BYTES 와 같은 값). 넘으면 400 IMAGE_TOO_LARGE
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/${DB_NAME:ddip}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DB_USER:ddip}
@@ -31,6 +36,12 @@ spring:
 internal:
   api-key: ${INTERNAL_API_KEY:local-internal-key}
   customer-base-url: ${CUSTOMER_BASE_URL:http://localhost:8081}
+
+# 이미지 업로드 (DUDU-18). 로컬 폴더에 저장하고 업주 서버가 /images/** 로 내보낸다
+app:
+  image:
+    upload-dir: ${IMAGE_UPLOAD_DIR:uploads/images}         # 상대 경로면 서버 실행 위치 기준
+    base-url: ${IMAGE_BASE_URL:http://localhost:8082}      # 응답 imageUrl 앞부분. 배포 시 외부에서 열리는 주소로
 
 # 주소 → 좌표 변환 (common GeoCodingService). 키는 .env 의 KAKAO_REST_API_KEY, 없으면 변환 실패로 처리
 kakao:
