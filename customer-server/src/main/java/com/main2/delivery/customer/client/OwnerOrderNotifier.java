@@ -50,7 +50,7 @@ public class OwnerOrderNotifier {
         try{
             restClient.post()
                     .uri("/internal/orders/canceled")
-                    .body(Map.of("orderId", event.getOrderId(), "storeId", event.getStoreId()))
+                    .body(Map.of("orderId", event.getOrderId(), "storeId", event.getStoreId(), "reason", event.getReason()))
                     .retrieve()
                     .toBodilessEntity();
         }catch(Exception e){

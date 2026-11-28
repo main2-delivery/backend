@@ -6,6 +6,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.main2.delivery.customer.client.OwnerOrderNotifier;
 import com.main2.delivery.customer.repository.cart.CartRedisRepository;
+import com.main2.delivery.customer.dto.tracking.OrderStatusMessage;
+import com.main2.delivery.customer.service.tracking.TrackingService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderEventListener {
     private final CartRedisRepository cartRedisRepository;
     private final OwnerOrderNotifier ownerOrderNotifier;
+    private final TrackingService trackingService;
 
     // 주문 저장이 커밋된 뒤에만 실행 (롤백되면 실행 안됨)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -22,10 +25,11 @@ public class OrderEventListener {
         ownerOrderNotifier.notfyCreated(event);
     }
 
-    // 주문 취소가 커밋된 뒤에만 업주에게 알림 (취소가 롤백되면 알리지 않음)
+    // 주문 취소가 커밋된 뒤에만 실행: 업주 알림 + 추적 화면에 전달
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onOrderCanceled(OrderCanceledEvent event){
         ownerOrderNotifier.notifyCanceled(event);
+        trackingService.push(new OrderStatusMessage(
+                event.getOrderId(), "CANCELED", null, null, event.getReason()));
     }
-
 }

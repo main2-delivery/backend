@@ -9,4 +9,5 @@ import lombok.RequiredArgsConstructor;
 public class OrderCanceledEvent {
     private final Long orderId;
     private final Long storeId;
+    private final String reason;    // 취소 사유
 }

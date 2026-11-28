@@ -39,7 +39,7 @@ public class OrderCanceler {
         order.setCanceledAt(LocalDateTime.now());
 
         // [4] 커밋되면 업주 알림
-        eventPublisher.publishEvent(new OrderCanceledEvent(order.getId(), order.getStore().getId()));
+        eventPublisher.publishEvent(new OrderCanceledEvent(order.getId(), order.getStore().getId(), reason));
         return order;
     }
 }
