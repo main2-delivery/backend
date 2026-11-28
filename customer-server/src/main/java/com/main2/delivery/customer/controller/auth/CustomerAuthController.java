@@ -24,7 +24,7 @@ public class CustomerAuthController {
     private final CustomerAuthService customerAuthService;
 
     // 회원가입
-    @PostMapping("/signUp")
+    @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<CustomerSignupResponse> signUp(@Valid @RequestBody CustomerSignupRequest req){
         return ApiResponse.ok(customerAuthService.signUp(req));
