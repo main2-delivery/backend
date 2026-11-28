@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component 
 public class OrderEventHandler {
     public  void handle(OrderEvent event){
-        log.info("주문 이벤트 수신 eventId={} type={} orderId ={} storeId={}",
+        log.info("주문 이벤트 수신 eventId={} type={} orderId={} storeId={}",
             event.eventId(), event.eventType(), event.orderId(), event.storeId()
         );
 
@@ -23,11 +23,11 @@ public class OrderEventHandler {
         }
     }
 
-        // 새 주문: 업주 화면 실시간 알림(SSE)은 업주 주문 스토리에서 여기에 붙임
-        private void handleCreated(OrderEvent event){
-        }
+    // 새 주문: 업주 화면 실시간 알림(SSE)은 업주 주문 스토리에서 여기에 붙임
+    private void handleCreated(OrderEvent event){
+    }
 
-        // 접수 전 취소: 업주 화면에서 주문 내리기는 업주 주문 스토리에서 여기에 붙임
-        private void handleCanceled(OrderEvent event){
-        }
+    // 접수 전 취소: 업주 화면에서 주문 내리기는 업주 주문 스토리에서 여기에 붙임
+    private void handleCanceled(OrderEvent event){
+    }
 }
