@@ -24,7 +24,7 @@ public class CustomerAuthService {
 
     // 회원가입
     @Transactional 
-    public CustomerSignupResponse signup(CustomerSignupRequest req){
+    public CustomerSignupResponse signUp(CustomerSignupRequest req){
         String phone = PhoneNumber.normalize(req.getPhone());
         String nickname = req.getNickname().trim();
 
