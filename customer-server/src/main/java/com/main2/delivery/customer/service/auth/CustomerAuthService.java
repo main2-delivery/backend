@@ -32,7 +32,7 @@ public class CustomerAuthService {
             throw new BusinessException(AuthErrorCode.AUTH_INVALID_PHONE);
         }
         if(userRepository.existsByLoginId(req.getLoginId())){
-            throw new BusinessException(AuthErrorCode.AUTH_LOGIN_ID_DUPLICAED);
+            throw new BusinessException(AuthErrorCode.AUTH_LOGIN_ID_DUPLICATED);
         }
         if(userRepository.existsByPhone(phone)){
             throw new BusinessException(AuthErrorCode.AUTH_PHONE_DUPLICATED);
@@ -66,6 +66,6 @@ public class CustomerAuthService {
         if(message.contains("uk_user_nickname")){
             return AuthErrorCode.AUTH_NICKNAME_DUPLICATED;
         }
-        return AuthErrorCode.AUTH_LOGIN_ID_DUPLICAED;
+        return AuthErrorCode.AUTH_LOGIN_ID_DUPLICATED;
     }
 }
