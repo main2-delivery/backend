@@ -47,3 +47,7 @@ management:
     distribution:
       percentiles-histogram:
         http.server.requests: true   # 응답 시간 p95·p99 계산용
+ddip:
+  auth:
+    dev-header:
+      enabled: true   # Security 적용 전 개발용 테스트 헤더 인증. DUDU-32(JWT) 적용 시 false
