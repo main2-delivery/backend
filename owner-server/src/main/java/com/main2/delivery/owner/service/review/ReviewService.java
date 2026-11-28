@@ -1,5 +1,6 @@
 package com.main2.delivery.owner.service.review;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -44,6 +45,7 @@ public class ReviewService {
     public ReviewResponse putReply(Long ownerId, Long reviewId, ReviewReplyRequest req){
         ReviewEntity reviewEntity = findMyReview(ownerId, reviewId);
         reviewEntity.setReply(req.getReply());
+        reviewEntity.setRepliedAt(LocalDateTime.now());
 
         return new ReviewResponse(reviewEntity);
     }

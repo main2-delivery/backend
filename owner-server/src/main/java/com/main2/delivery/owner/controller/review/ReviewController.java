@@ -36,7 +36,7 @@ public class ReviewController {
         @RequestHeader("X-Test-User-Id") Long ownerId,
         @PathVariable Long storeId,
         @RequestParam(defaultValue = "false") boolean unanswered,
-        @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        @PageableDefault(size = 20, sort = {"createdAt", "id"}, direction = Sort.Direction.DESC) Pageable pageable) {
     return ApiResponse.ok(reviewService.findReviews(ownerId, storeId, unanswered, pageable));
     }
 
