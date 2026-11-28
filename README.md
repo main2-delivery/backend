@@ -1,4 +1,4 @@
-# 디쉬패치 백엔드
+# 띱 백엔드
 
 위치 기반 배달 주문·배차 플랫폼. Java 17, Spring Boot 4.1.3, Gradle 멀티 모듈.
 
@@ -47,11 +47,12 @@ k6 결과는 터미널에 요약이 나오고 Prometheus에도 쌓여 Grafana에
 `controller/order`, `service/order`, `repository/order`, `dto/order`
 엔티티는 서버 모듈이 아니라 `core-domain`에 둔다.
 
-## 로그인 없이 테스트하기
-요청 헤더에 `X-Test-User-Id`, `X-Test-Role`을 넣는다.
-
-## 서버 간 호출 (Sprint 1)
-`/internal/**` 경로, REST, 공유 키 헤더로 보호. Sprint 2에 RabbitMQ로 전환.
+## 규칙 문서
+| 문서 | 내용 |
+|---|---|
+| [docs/api-response.md](docs/api-response.md) | 응답 모양, 에러 코드 만들기·던지기, 상태 코드 고르는 기준 |
+| [docs/auth.md](docs/auth.md) | 현재 사용자 받기(`@AuthenticationPrincipal LoginUser`), 개발용 테스트 헤더, 주소 규칙 |
+| [docs/internal-events.md](docs/internal-events.md) | 서버 간 주문 이벤트(`OrderEvent`), `/internal/**` 공유 키, 새 이벤트 추가 방법 |
 
 ## 브랜치
 `main`에는 PR로만 반영한다. 작업 브랜치 이름은 `feature/번호-설명` 또는 `feature/설명` (예: `feature/33-order-create`, `feature/order-create`).
