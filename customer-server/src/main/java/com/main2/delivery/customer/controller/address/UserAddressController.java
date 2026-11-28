@@ -20,7 +20,7 @@ import com.main2.delivery.customer.service.address.UserAddressService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/addresses")
+@RequestMapping("/api/customer/addresses")
 @RequiredArgsConstructor
 public class UserAddressController {
 
