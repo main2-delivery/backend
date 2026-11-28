@@ -3,12 +3,13 @@ package com.main2.delivery.owner.controller.store;
 import com.main2.delivery.owner.dto.store.StoreCreateResponseDto;
 import com.main2.delivery.owner.exception.OwnerErrorCode;
 import com.main2.delivery.common.exception.BusinessException;
+import com.main2.delivery.common.security.SecurityConfig;
 import com.main2.delivery.owner.service.store.StoreService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,9 +26,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// HTTP 요청 단계 확인: 상태 코드, 로그인 헤더, 에러 응답 형식 (Security 는 아직 서버에 없어 필터를 끈다)
-@WebMvcTest(StoreController.class)
-@AutoConfigureMockMvc(addFilters = false)
+// HTTP 요청 단계 확인: 상태 코드, 로그인 사용자, 에러 응답 형식
+// 테스트 헤더 → LoginUser 변환까지 확인하려고 개발용 헤더 필터를 켠다 (docs/auth.md 5장)
+@WebMvcTest(controllers = StoreController.class, properties = "ddip.auth.dev-header.enabled=true")
+@Import(SecurityConfig.class)
 class StoreControllerTest {
 
     private static final String CREATE_BODY = """
@@ -87,12 +89,21 @@ class StoreControllerTest {
     }
 
     @Test
-    @DisplayName("로그인 헤더가 없으면 401, 업주 역할이 아니면 403")
-    void requiresOwnerHeaders() throws Exception {
+    @DisplayName("업주가 아니면 403 (헤더가 없으면 기본 고객 1번으로 들어온다)")
+    void requiresOwner() throws Exception {
         mockMvc.perform(get("/api/owner/stores"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error.code").value("OWNER_ROLE_REQUIRED"));
         mockMvc.perform(get("/api/owner/stores").header("X-Test-User-Id", "1").header("X-Test-Role", "CUSTOMER"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.error.code").value("OWNER_ROLE_REQUIRED"));
+    }
+
+    @Test
+    @DisplayName("테스트 헤더 값이 잘못되면 필터에서 400")
+    void invalidTestHeader() throws Exception {
+        mockMvc.perform(get("/api/owner/stores").header("X-Test-User-Id", "abc").header("X-Test-Role", "OWNER"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("COMMON_INVALID_INPUT"));
     }
 }
