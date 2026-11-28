@@ -1,6 +1,7 @@
 package com.main2.delivery.owner.controller.store;
 
 import com.main2.delivery.owner.dto.store.StoreCreateResponseDto;
+import com.main2.delivery.owner.dto.store.StoreStatusResponseDto;
 import com.main2.delivery.owner.exception.OwnerErrorCode;
 import com.main2.delivery.common.exception.BusinessException;
 import com.main2.delivery.common.security.SecurityConfig;
@@ -21,6 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -84,6 +86,27 @@ class StoreControllerTest {
         given(storeService.getMyStore(1L, 10L)).willThrow(new BusinessException(OwnerErrorCode.STORE_NOT_OWNER));
 
         mockMvc.perform(asOwner(get("/api/owner/stores/10")))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error.code").value("STORE_NOT_OWNER"));
+    }
+
+    @Test
+    @DisplayName("영업 상태 변경 성공 시 200과 바뀐 상태를 돌려준다")
+    void changeStatus_returns200() throws Exception {
+        given(storeService.changeStatus(eq(1L), eq(10L), any())).willReturn(new StoreStatusResponseDto(10L, "PAUSED"));
+
+        mockMvc.perform(asOwner(patch("/api/owner/stores/10/status")).content("{\"status\":\"PAUSED\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.storeId").value(10))
+                .andExpect(jsonPath("$.data.status").value("PAUSED"));
+    }
+
+    @Test
+    @DisplayName("다른 업주의 가게 상태를 바꾸면 403")
+    void changeStatus_otherOwnersStore() throws Exception {
+        given(storeService.changeStatus(eq(1L), eq(10L), any())).willThrow(new BusinessException(OwnerErrorCode.STORE_NOT_OWNER));
+
+        mockMvc.perform(asOwner(patch("/api/owner/stores/10/status")).content("{\"status\":\"OPEN\"}"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.error.code").value("STORE_NOT_OWNER"));
     }

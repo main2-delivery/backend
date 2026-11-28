@@ -9,6 +9,9 @@ import com.main2.delivery.core.entity.StoreEntity;
 import com.main2.delivery.owner.dto.store.StoreCreateRequestDto;
 import com.main2.delivery.owner.dto.store.StoreCreateResponseDto;
 import com.main2.delivery.owner.dto.store.StoreDetailResponseDto;
+import com.main2.delivery.owner.dto.store.StoreStatus;
+import com.main2.delivery.owner.dto.store.StoreStatusRequestDto;
+import com.main2.delivery.owner.dto.store.StoreStatusResponseDto;
 import com.main2.delivery.owner.dto.store.StoreSummaryResponseDto;
 import com.main2.delivery.owner.dto.store.StoreUpdateRequestDto;
 import com.main2.delivery.owner.exception.OwnerErrorCode;
@@ -90,6 +93,20 @@ public class StoreService {
         store.setDeliveryRadiusM(request.getDeliveryRadiusM());
         store.setImageUrl(request.getLogoUrl());
         return StoreDetailResponseDto.from(store);
+    }
+
+    // 5. 영업 상태 변경: 고객 서버가 같은 DB 를 읽으므로 커밋되면 가게 목록·상세·주문 가능 여부에 바로 반영된다
+    @Transactional
+    public StoreStatusResponseDto changeStatus(Long ownerId, Long storeId, StoreStatusRequestDto request) {
+        StoreStatus next = StoreStatus.from(request == null ? null : request.getStatus())
+                .orElseThrow(() -> new BusinessException(OwnerErrorCode.STORE_INVALID_STATUS));
+        StoreEntity store = findMyStore(ownerId, storeId);
+        // 영업시간 없이 문을 열면 고객 앱에 영업시간이 비어 보이므로 OPEN 전에 입력을 요구한다
+        if (next == StoreStatus.OPEN && (store.getOpenTime() == null || store.getCloseTime() == null)) {
+            throw new BusinessException(OwnerErrorCode.STORE_OPEN_REQUIREMENTS_NOT_MET);
+        }
+        store.setStatus(next.name());   // 같은 상태로 다시 요청해도 그대로 성공 (멱등)
+        return StoreStatusResponseDto.from(store);
     }
 
     // 없는 가게는 404, 다른 업주의 가게는 403

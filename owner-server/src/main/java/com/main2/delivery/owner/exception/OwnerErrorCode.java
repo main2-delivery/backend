@@ -24,7 +24,9 @@ public enum OwnerErrorCode implements ErrorCode {
     STORE_GEOCODING_FAILED(HttpStatus.BAD_REQUEST, "주소를 좌표로 바꿀 수 없습니다. 도로명 주소를 확인해 주세요."),
     STORE_CATEGORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "없는 가게 카테고리입니다."),
     STORE_NOT_OWNER(HttpStatus.FORBIDDEN, "내 가게가 아닙니다."),
-    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다.");
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다."),
+    STORE_INVALID_STATUS(HttpStatus.BAD_REQUEST, "영업 상태는 OPEN, PREPARING, PAUSED, CLOSED 중 하나입니다."),
+    STORE_OPEN_REQUIREMENTS_NOT_MET(HttpStatus.BAD_REQUEST, "영업시간을 먼저 입력해야 영업을 시작할 수 있습니다.");
 
     private final HttpStatus status;
     private final String message;

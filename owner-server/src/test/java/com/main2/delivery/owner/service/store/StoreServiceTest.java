@@ -5,6 +5,8 @@ import com.main2.delivery.core.entity.StoreEntity;
 import com.main2.delivery.owner.dto.store.StoreCreateRequestDto;
 import com.main2.delivery.owner.dto.store.StoreCreateResponseDto;
 import com.main2.delivery.owner.dto.store.StoreDetailResponseDto;
+import com.main2.delivery.owner.dto.store.StoreStatusRequestDto;
+import com.main2.delivery.owner.dto.store.StoreStatusResponseDto;
 import com.main2.delivery.owner.dto.store.StoreUpdateRequestDto;
 import com.main2.delivery.common.exception.ErrorCode;
 import com.main2.delivery.owner.exception.OwnerErrorCode;
@@ -190,5 +192,63 @@ class StoreServiceTest {
         assertError(() -> storeService.updateMyStore(OWNER_ID, 10L, negativeFee), OwnerErrorCode.STORE_INVALID_AMOUNT);
         assertError(() -> storeService.updateMyStore(OWNER_ID, 10L, zeroRadius), OwnerErrorCode.STORE_INVALID_DELIVERY_RADIUS);
         assertError(() -> storeService.updateMyStore(OWNER_ID, 10L, onlyOpen), OwnerErrorCode.STORE_INVALID_BUSINESS_HOURS);
+    }
+
+    @Test
+    @DisplayName("영업 상태를 바꾸면 소문자로 보내도 대문자 값으로 저장된다")
+    void changeStatus_updatesStatus() {
+        StoreEntity store = storeOwnedBy(OWNER_ID);
+        given(storeRepository.findById(10L)).willReturn(Optional.of(store));
+
+        StoreStatusResponseDto response = storeService.changeStatus(OWNER_ID, 10L, new StoreStatusRequestDto("paused"));
+
+        assertThat(response.getStatus()).isEqualTo("PAUSED");
+        assertThat(store.getStatus()).isEqualTo("PAUSED");
+    }
+
+    @Test
+    @DisplayName("영업시간이 있으면 OPEN 으로 바꿀 수 있다")
+    void changeStatus_openWithBusinessHours() {
+        StoreEntity store = storeOwnedBy(OWNER_ID);
+        store.setOpenTime(LocalTime.of(11, 0));
+        store.setCloseTime(LocalTime.of(23, 0));
+        given(storeRepository.findById(10L)).willReturn(Optional.of(store));
+
+        StoreStatusResponseDto response = storeService.changeStatus(OWNER_ID, 10L, new StoreStatusRequestDto("OPEN"));
+
+        assertThat(response.getStatus()).isEqualTo("OPEN");
+    }
+
+    @Test
+    @DisplayName("영업시간이 비어 있으면 OPEN 으로 바꿀 수 없다")
+    void changeStatus_openWithoutBusinessHours() {
+        StoreEntity store = storeOwnedBy(OWNER_ID);
+        store.setStatus("PREPARING");
+        given(storeRepository.findById(10L)).willReturn(Optional.of(store));
+
+        assertError(() -> storeService.changeStatus(OWNER_ID, 10L, new StoreStatusRequestDto("OPEN")),
+                OwnerErrorCode.STORE_OPEN_REQUIREMENTS_NOT_MET);
+        assertThat(store.getStatus()).isEqualTo("PREPARING");
+    }
+
+    @Test
+    @DisplayName("없는 상태 값이나 빈 값이면 400 (가게 조회 전에 막는다)")
+    void changeStatus_invalidStatus() {
+        assertError(() -> storeService.changeStatus(OWNER_ID, 10L, new StoreStatusRequestDto("SLEEPING")),
+                OwnerErrorCode.STORE_INVALID_STATUS);
+        assertError(() -> storeService.changeStatus(OWNER_ID, 10L, new StoreStatusRequestDto(null)),
+                OwnerErrorCode.STORE_INVALID_STATUS);
+        assertError(() -> storeService.changeStatus(OWNER_ID, 10L, null), OwnerErrorCode.STORE_INVALID_STATUS);
+        verify(storeRepository, never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("다른 업주의 가게 상태를 바꾸면 403")
+    void changeStatus_otherOwnersStore() {
+        StoreEntity otherStore = storeOwnedBy(OTHER_OWNER_ID);
+        given(storeRepository.findById(10L)).willReturn(Optional.of(otherStore));
+
+        assertError(() -> storeService.changeStatus(OWNER_ID, 10L, new StoreStatusRequestDto("CLOSED")),
+                OwnerErrorCode.STORE_NOT_OWNER);
     }
 }

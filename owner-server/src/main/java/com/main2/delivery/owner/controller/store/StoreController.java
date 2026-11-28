@@ -7,6 +7,8 @@ import com.main2.delivery.common.security.LoginUser;
 import com.main2.delivery.owner.dto.store.StoreCreateRequestDto;
 import com.main2.delivery.owner.dto.store.StoreCreateResponseDto;
 import com.main2.delivery.owner.dto.store.StoreDetailResponseDto;
+import com.main2.delivery.owner.dto.store.StoreStatusRequestDto;
+import com.main2.delivery.owner.dto.store.StoreStatusResponseDto;
 import com.main2.delivery.owner.dto.store.StoreSummaryResponseDto;
 import com.main2.delivery.owner.dto.store.StoreUpdateRequestDto;
 import com.main2.delivery.owner.exception.OwnerErrorCode;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -25,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-// 업주 가게 API: 입점 신청, 내 가게 목록, 가게 정보 조회·수정
+// 업주 가게 API: 입점 신청, 내 가게 목록, 가게 정보 조회·수정, 영업 상태 변경
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/owner/stores")
@@ -60,6 +63,14 @@ public class StoreController {
                                                   @PathVariable Long storeId,
                                                           @RequestBody StoreUpdateRequestDto request) {
         return ApiResponse.ok(storeService.updateMyStore(loginOwnerId(user), storeId, request));
+    }
+
+    // 5. 영업 상태 변경 (OPEN / PREPARING / PAUSED / CLOSED)
+    @PatchMapping("/{storeId}/status")
+    public ApiResponse<StoreStatusResponseDto> changeStatus(@AuthenticationPrincipal LoginUser user,
+                                                         @PathVariable Long storeId,
+                                                         @RequestBody StoreStatusRequestDto request) {
+        return ApiResponse.ok(storeService.changeStatus(loginOwnerId(user), storeId, request));
     }
 
     // 로그인 업주 id. 고객·업주 id 가 겹치므로 역할을 꼭 같이 확인한다 (docs/auth.md)
